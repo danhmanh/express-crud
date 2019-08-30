@@ -6,6 +6,8 @@ const songRoutes = require('./routes/song.route');
 const userRoutes = require('./routes/user.route');
 const sessionRoutes = require('./routes/session.route');
 
+const auth = require('./middleware/auth');
+
 const app = express();
 
 // Load .env file
@@ -25,6 +27,9 @@ db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
+app.use('/', sessionRoutes);
+app.use('/users', userRoutes);
+app.use(auth);
 app.use('/songs', songRoutes);
 
 // Testing Routes

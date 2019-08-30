@@ -1,20 +1,25 @@
 const User = require('../models/user');
 const AuthToken = require('../models/auth_token');
-const bcrypt = require('bcrypt');
-const randomstring = require('randomstring');
 
 exports.login = async (req, res) => {
-  let user = await User.findOne({ username: req.body.username });
+  try {
+    let user = await User.findOne({ username: req.body.username });
 
-  if (user) {
-    let isMatched = await bcrypt.compare(req.body.password, user.password);
-    if (isMatched) {
-      createToken(user);
-      res.status(200).send({ message: 'Login success', user: user, auth_token: user.auth_tokens });
+    if (user) {
+      if (await user.comparePassword(req.body.password)) {
+        let authToken = user.generateToken();
+        res.status(200).send({ message: 'Login success', user: user, auth: authToken });
+      } else {
+        res.status(401).send({ message: 'Login failed.' })
+      }
+    } else {
+      res.status(422).send({ message: 'Username / password is invalid.' })
     }
-  } else {
-    res.status(422).send({ message: 'Username / password is invalid.' })
+  } catch (err) {
+    console.error(err);
+    res.status(422).send({ message: 'Authoziration failed'});
   }
+
 }
 
 exports.logout = async (req, res) => {
@@ -23,8 +28,6 @@ exports.logout = async (req, res) => {
 
     if (auth == null) throw "AuthToken not found.";
     await auth.remove();
-    pry = require('pryjs')
-    eval(pry.it)
     res.send({ message: 'Logout successfully.' });
   } catch (err) {
     res.status(422).send({ message: err });
