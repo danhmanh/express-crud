@@ -1,7 +1,11 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-const song = require('./routes/song.route');
+
+const songRoutes = require('./routes/song.route');
+const userRoutes = require('./routes/user.route');
+const sessionRoutes = require('./routes/session.route');
+
 const app = express();
 
 // Load .env file
@@ -21,10 +25,10 @@ db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-app.use('/songs', song);
+app.use('/songs', songRoutes);
 
 // Testing Routes
-app.get('/', (req, res) => {
+app.get('/', (_, res) => {
   res.send('Hello World');
 });
 
